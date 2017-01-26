@@ -36,8 +36,8 @@ def extraField():
     if(i+1 < len(labels)):
         moveOn["text"] = "Add " + labels[i+1]
         moveOn.pack(pady=5)
-    else:
-        add.pack()
+    if(i > 2):
+        add.pack(pady=5)
 
 def addEntry():
     global labels
@@ -45,13 +45,28 @@ def addEntry():
     global entries
 
     Label(text=labels[i].rstrip('s')).pack(side="top", anchor="w")
-    e = Entry(width=100)
+    if(i == 1):
+        e = Text(width=75, height=15)
+    else:
+        e = Entry(width=100)
     e.pack()
     Frame(height=2, bd=1, relief=SUNKEN).pack(fill=X, padx=5, pady=5)
     if(i > 1):
         entries[i].append(e)
     else:
         entries[i] = e
+
+def getText(widget):
+    if (widget.winfo_class() == "Text"):
+        return widget.get("1.0", "end-1c")
+    else:
+        return widget.get()
+
+def clearText(widget):
+    if (widget.winfo_class() == "Text"):
+        widget.delete("1.0", END)
+    else:
+        widget.delete(0, END)
 
 def submitTopic():
     global entries
@@ -63,16 +78,14 @@ def submitTopic():
         if(isinstance(entries[i], list)):
             toAdd = []
             for e in entries[i]:
-                toAdd.append(e.get())
+                if(getText(e) != ""):
+                    toAdd.append(getText(e))
+                    clearText(e)
             newTopic[labels[i]] = toAdd
         else:
-            newTopic[labels[i]] = entries[i].get()
+            newTopic[labels[i]] = getText(entries[i])
+            clearText(entries[i])
     writeNewTopic(newTopic)
-    master.destroy()
-
-
-
-
 
 
 labels = ["topic", "excerpt", "tags", "references", "see-also"]
